@@ -39,7 +39,7 @@
   cursor: pointer;
 }
 
-.task-table tr:hover {
+.task-table tbody tr:hover {
   background-color: #e6f2ff;
 }
 

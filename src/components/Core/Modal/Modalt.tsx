@@ -13,7 +13,7 @@ const Modal = ({
     <div className="modal-overlay">
       <div className="modal">
         <button className="close-button" onClick={onClose}>
-          X
+          &#x2715;
         </button>
         {children}
       </div>

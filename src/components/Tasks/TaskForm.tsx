@@ -87,6 +87,7 @@ const TaskForm = ({
           <input
             type="text"
             id="name"
+            autoComplete="off"
             name="name"
             value={formData.name}
             onChange={handleChange}
