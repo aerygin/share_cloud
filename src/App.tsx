@@ -1,11 +1,11 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import QuarterCalendar from './components/QuarterCalendar/QuarterCalendar';
 
 function App() {
   return (
     <div className="App">
-      <p>sharecloud</p>
+      <QuarterCalendar />
     </div>
   );
 }
