@@ -1,0 +1,50 @@
+/* SHARED STYLES */
+
+.table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.table td {
+  max-width: 100px;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+  height: 30px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table th {
+  background-color: #e6e6e6;
+}
+
+/* TASK TABLE STYLES */
+
+.task-table {
+  min-width: 350px;
+  width: 350px;
+}
+
+.task-table th,
+.task-table td {
+  border-right: none;
+}
+
+.task-table td {
+  cursor: pointer;
+}
+
+.task-table tr:hover {
+  background-color: #e6f2ff;
+}
+
+.task-table .empty-header {
+  background-color: transparent;
+  border-top: 1px solid transparent;
+  border-left: none;
+}

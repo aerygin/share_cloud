@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Moment } from 'moment';
 import { useCallback, useState } from 'react';
-import { ITask, IWeek } from '../types';
+import { ICalendarDataItem, ITask, IWeek } from '../types';
 
 const useCalendar = () => {
   const [quarterDisplayValue, setQuarterDisplayValue] = useState<string>('');
@@ -76,20 +76,19 @@ const useCalendar = () => {
     [calculateDaysInWeekByMonth]
   );
 
-  const getMonths = useCallback(() => {
+  const getCalendarData = useCallback((): ICalendarDataItem[] => {
     const startOfQuarter = currentQuarter.startOf('quarter');
-    const months = [];
+    const dataItems = [];
 
     for (let i = 0; i < 3; i++) {
-      // Calculate the start of each month within the quarter
       const startOfMonth = startOfQuarter.clone().add(i, 'months');
-      months.push({
-        label: startOfMonth.format('MMM'),
+      dataItems.push({
+        monthLabel: startOfMonth.format('MMM'),
         weeks: getWeeks(startOfMonth),
       });
     }
 
-    return months;
+    return dataItems;
   }, [getWeeks, currentQuarter]);
 
   const isWeekInTaskRange = useCallback((week: IWeek, task: ITask) => {
@@ -100,7 +99,7 @@ const useCalendar = () => {
   }, []);
 
   return {
-    getMonths,
+    getCalendarData,
     currentQuarter,
     setCurrentQuarter,
     quarterDisplayValue,

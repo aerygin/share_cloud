@@ -1,34 +1,46 @@
-import { useMemo, useState } from 'react';
+import { SetStateAction, useMemo, useState } from 'react';
 import { ITask, IWeek } from '../../types';
 import useCalendar from '../../hooks/useCalendar';
 import moment from 'moment';
+import { Flex } from '../Core';
 
 const HoverCard = ({ task }: { task: ITask }) => {
   const cardStyle: React.CSSProperties = {
     position: 'absolute',
     backgroundColor: 'white',
-    padding: '5px',
-    borderRadius: '4px',
+    padding: '15px',
+    borderRadius: '6px',
     width: '300px',
-    height: '200px',
+    height: '150px',
     right: 20,
     bottom: 10,
     boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
+    overflow: 'hidden',
   };
 
   return (
     <div style={cardStyle}>
-      <div>
-        <h3>{task.name}</h3>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <strong>Start:</strong>
-          <span>{moment(task.start).format('DD.MM.YYYY')}</span>
+      <h3>{task.name}</h3>
+      <Flex>
+        <strong>Start:</strong>
+        <span>{moment(task.start).format('DD.MM.YYYY')}</span>
+      </Flex>
+      <Flex>
+        <strong>End:</strong>
+        <span>{moment(task.end).format('DD.MM.YYYY')}</span>
+      </Flex>
+      <Flex>
+        <strong>Description:</strong>
+        <div
+          style={{
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+          }}
+        >
+          {task.description || '-'}
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <strong>End:</strong>
-          <span>{moment(task.end).format('DD.MM.YYYY')}</span>
-        </div>
-      </div>
+      </Flex>
     </div>
   );
 };
@@ -37,9 +49,11 @@ const HoverableCell = ({
   task,
   week,
   children,
+  setTasks,
 }: {
   task: ITask;
   week: IWeek;
+  setTasks: React.Dispatch<SetStateAction<ITask[]>>;
   children?: JSX.Element;
 }) => {
   const { isWeekInTaskRange } = useCalendar();
@@ -59,7 +73,7 @@ const HoverableCell = ({
   const cellStyle: React.CSSProperties = useMemo(
     () => ({
       position: 'relative',
-      backgroundColor: isHoverable ? 'blue' : 'unset',
+      backgroundColor: isHoverable ? '#007bff' : 'unset',
       cursor: isHoverable ? 'pointer' : 'unset',
       overflow: 'visible',
     }),

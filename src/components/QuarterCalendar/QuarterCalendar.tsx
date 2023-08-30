@@ -1,10 +1,13 @@
 import moment, { Moment } from 'moment';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useCalendar from '../../hooks/useCalendar';
 import CalendarControls from './CalendarControls';
-
-import '../../styles.css';
 import HoverableCell from './HoverableCell';
+import TaskForm from '../Tasks/TaskForm';
+import { Button, Spacer, Modal, Flex } from '../Core';
+
+import '../../styles/tableStyles.css';
+import { ITask } from '../../types';
 
 const QuarterCalendar = () => {
   const {
@@ -12,15 +15,11 @@ const QuarterCalendar = () => {
     setCurrentQuarter,
     quarterDisplayValue,
     setQuarterDisplayValue,
-    getMonths,
+    getCalendarData,
   } = useCalendar();
-  const tasks = [
-    { name: 'aaa', start: new Date('2023-08-29'), end: new Date('2023-08-31') },
-    { name: 'bbb', start: new Date('2023-08-29'), end: new Date('2023-09-05') },
-    { name: 'ccc', start: new Date('2023-09-20'), end: new Date('2023-09-30') },
-    { name: 'ddd', start: new Date('2023-08-20'), end: new Date('2023-08-30') },
-    { name: 'eee', start: new Date('2023-01-20'), end: new Date('2023-12-30') },
-  ];
+  const [isAddTaskModalOpen, setAddTaskModalOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<ITask | null>(null);
+  const [tasks, setTasks] = useState<ITask[]>([]);
 
   const updateQuarter = useCallback(
     (date: Moment) => {
@@ -46,67 +45,102 @@ const QuarterCalendar = () => {
     setCurrentQuarter(currentQuarter.clone().subtract(1, 'quarter'));
   }, [setCurrentQuarter, currentQuarter]);
 
+  const handleSelectTask = useCallback((task: ITask) => {
+    setTaskToEdit(task);
+  }, []);
+
   return (
-    <>
-      <CalendarControls
-        handleNext={handleNextQuarter}
-        handlePrev={handlePrevQuarter}
-        displayValue={quarterDisplayValue}
-      />
-      <div style={{ display: 'flex' }}>
-        <table className="task-table " style={{ width: '400px' }}>
-          <thead>
-            <tr>
-              <th colSpan={3}></th>
-            </tr>
-            <tr>
-              <th>Task name</th>
-              <th>Task start</th>
-              <th>Task end</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tasks.map((task) => (
-              <tr key={task.name}>
-                <td>{task.name}</td>
-                <td>{moment(task.start).format('DD.MM.YYYY')}</td>
-                <td>{moment(task.end).format('DD.MM.YYYY')}</td>
+    <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <div>
+        <CalendarControls
+          handleNext={handleNextQuarter}
+          handlePrev={handlePrevQuarter}
+          displayValue={quarterDisplayValue}
+        />
+        <Spacer />
+        <Flex sx={{ gap: 0 }}>
+          <table className="table task-table">
+            <thead>
+              <tr>
+                <th className="empty-header" colSpan={3}></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <table className="task-table">
-          <thead>
-            <tr>
-              {getMonths().map((m) => (
-                <th key={m.label} colSpan={m.weeks.length}>
-                  {m.label}
-                </th>
+              <tr>
+                <th>Task name</th>
+                <th>Task start</th>
+                <th>Task end</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tasks.map((task) => (
+                <tr onClick={() => handleSelectTask(task)} key={task.name}>
+                  <td>{task.name}</td>
+                  <td>{moment(task.start).format('DD.MM.YYYY')}</td>
+                  <td>{moment(task.end).format('DD.MM.YYYY')}</td>
+                </tr>
               ))}
-            </tr>
-            <tr>
-              {getMonths().map((m) => {
-                return m.weeks.map((x) => <th key={x.label}>{x.label}</th>);
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {tasks.map((task, i) => (
-              <tr key={`${task.name}_${i}`}>
-                {getMonths().map((x) =>
-                  x.weeks.map((week) => (
-                    <HoverableCell
-                      key={`${task.name}_${week.label}`}
-                      {...{ task, week }}
-                    />
-                  ))
-                )}
+            </tbody>
+          </table>
+          <table className="table">
+            <thead>
+              <tr>
+                {getCalendarData().map((m) => (
+                  <th key={m.monthLabel} colSpan={m.weeks.length}>
+                    {m.monthLabel}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+              <tr>
+                {getCalendarData().map((m) => {
+                  return m.weeks.map((x) => <th key={x.label}>{x.label}</th>);
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {tasks.map((task, i) => (
+                <tr key={`${task.name}_${i}`}>
+                  {getCalendarData().map((x) =>
+                    x.weeks.map((week) => (
+                      <HoverableCell
+                        key={`${task.name}_${week.label}`}
+                        {...{ task, week, setTasks }}
+                      />
+                    ))
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Flex>
+        <Spacer />
+        {tasks.length < 10 ? (
+          <Flex sx={{ justifyContent: 'center' }}>
+            <Button onClick={() => setAddTaskModalOpen(true)}>
+              + Add task
+            </Button>
+          </Flex>
+        ) : null}
+        <Modal
+          isOpen={isAddTaskModalOpen}
+          onClose={() => setAddTaskModalOpen(false)}
+        >
+          <TaskForm
+            setTasks={setTasks}
+            afterSubmit={() => {
+              setAddTaskModalOpen(false);
+            }}
+          />
+        </Modal>
+        <Modal isOpen={!!taskToEdit} onClose={() => setTaskToEdit(null)}>
+          <TaskForm
+            task={taskToEdit ?? undefined}
+            setTasks={setTasks}
+            afterSubmit={() => {
+              setTaskToEdit(null);
+            }}
+          />
+        </Modal>
       </div>
-    </>
+    </div>
   );
 };
 
